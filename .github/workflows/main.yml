@@ -1,0 +1,28 @@
+name: Visitor Count
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-visitor-count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Increment visitor count
+        run: |
+          visitor_count=$(cat visitor-count.txt || echo "0")
+          visitor_count=$((visitor_count + 1))
+          echo $visitor_count > visitor-count.txt
+      - name: Commit changes
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Update visitor count'
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add visitor-count.txt
+          git commit -m 'Update visitor count'
+          git push
