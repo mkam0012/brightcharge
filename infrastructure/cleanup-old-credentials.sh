@@ -1,10 +1,16 @@
 #!/bin/bash
 set -e
 
-# Delete the old access key
-OLD_ACCESS_KEY_ID="AKIA6JQ44OES2DI6OPZF"
+# Delete the specified access key
+if [ -z "$1" ]; then
+    echo "Usage: $0 <access-key-id>"
+    echo "Please provide the access key ID to delete"
+    exit 1
+fi
 
-echo "Deleting old access key..."
+OLD_ACCESS_KEY_ID="$1"
+
+echo "Deleting access key $OLD_ACCESS_KEY_ID..."
 aws iam delete-access-key \
     --access-key-id "$OLD_ACCESS_KEY_ID" \
     --user-name github-actions
