@@ -134,7 +134,7 @@ describe('TeslaAPI', () => {
       const response = await api.authenticate(mockCode);
 
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'https://fleet-api.prd.na.vn.cloud.tesla.com/oauth2/v3/token',
+        'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token',
         {
           grant_type: 'authorization_code',
           client_id: ENV.TESLA_CLIENT_ID,
@@ -226,7 +226,7 @@ describe('TeslaAPI', () => {
       await api.getVehicles();
 
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'https://fleet-api.prd.na.vn.cloud.tesla.com/oauth2/v3/token',
+        'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token',
         {
           grant_type: 'refresh_token',
           client_id: ENV.TESLA_CLIENT_ID,

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Home, ExternalLink, Settings as SettingsIcon, X, CheckCircle, Pencil, Car } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HomeAssistantAPI } from '../services/homeAssistant';
-import { TeslaAPI } from '../services/tesla';
+import { TeslaAPI, TESLA_AUTH_BASE } from '../services/tesla';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
+import { ENV } from '../config/environment';
 
 export function Settings() {
   const navigate = useNavigate();
@@ -117,10 +118,10 @@ export function Settings() {
       await teslaApi.registerPartnerAccount();
 
       // Then proceed with OAuth flow
-      const teslaAuthUrl = `https://auth.tesla.com/oauth2/v3/authorize?client_id=${
-        import.meta.env.VITE_TESLA_CLIENT_ID
+      const teslaAuthUrl = `${TESLA_AUTH_BASE}/oauth2/v3/authorize?client_id=${
+        ENV.TESLA_CLIENT_ID
       }&redirect_uri=${encodeURIComponent(
-        import.meta.env.VITE_TESLA_REDIRECT_URI
+        ENV.TESLA_REDIRECT_URI
       )}&response_type=code&scope=openid%20offline_access%20vehicle_device_data%20vehicle_cmds%20vehicle_charging_cmds&state=${generateRandomState()}`;
       
       window.location.href = teslaAuthUrl;

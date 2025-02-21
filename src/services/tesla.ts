@@ -2,8 +2,8 @@ import axios, { AxiosError } from 'axios';
 import { ENV } from '../config/environment';
 import type { TeslaAuthResponse, TeslaVehicle } from '../types/tesla';
 
-const TESLA_API_BASE = 'https://fleet-api.prd.na.vn.cloud.tesla.com';
-const TESLA_AUTH_BASE = 'https://fleet-auth.prd.vn.cloud.tesla.com';
+export const TESLA_API_BASE = 'https://fleet-api.prd.na.vn.cloud.tesla.com';
+export const TESLA_AUTH_BASE = 'https://fleet-auth.prd.vn.cloud.tesla.com';
 
 export class TeslaAPI {
   private static instance: TeslaAPI;
@@ -64,7 +64,7 @@ export class TeslaAPI {
 
   async authenticate(code: string): Promise<TeslaAuthResponse> {
     try {
-      const response = await axios.post<TeslaAuthResponse>(`${TESLA_API_BASE}/oauth2/v3/token`, {
+      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
         grant_type: 'authorization_code',
         client_id: ENV.TESLA_CLIENT_ID,
         client_secret: ENV.TESLA_CLIENT_SECRET,
@@ -89,7 +89,7 @@ export class TeslaAPI {
     }
 
     try {
-      const response = await axios.post<TeslaAuthResponse>(`${TESLA_API_BASE}/oauth2/v3/token`, {
+      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
         grant_type: 'refresh_token',
         client_id: ENV.TESLA_CLIENT_ID,
         client_secret: ENV.TESLA_CLIENT_SECRET,
