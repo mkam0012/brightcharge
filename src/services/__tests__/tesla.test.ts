@@ -4,8 +4,15 @@ import { TeslaAPI } from '../tesla';
 import { ENV } from '../../config/environment';
 import type { TeslaAuthResponse, TeslaVehicle } from '../../types/tesla';
 
-// Mock axios
+// Mock axios and environment variables
 vi.mock('axios');
+vi.mock('../../config/environment', () => ({
+  ENV: {
+    TESLA_CLIENT_ID: 'test_client_id',
+    TESLA_CLIENT_SECRET: 'test_client_secret',
+    TESLA_REDIRECT_URI: 'https://test.example.com/callback'
+  }
+}));
 
 // Create a properly typed mock using Vitest's types
 const mockedAxios = vi.mocked(axios, true);
@@ -39,6 +46,11 @@ describe('TeslaAPI', () => {
           client_secret: ENV.TESLA_CLIENT_SECRET,
           audience: 'https://fleet-api.prd.na.vn.cloud.tesla.com',
           scope: 'openid user_data vehicle_device_data vehicle_cmds vehicle_charging_cmds'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -93,7 +105,8 @@ describe('TeslaAPI', () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${mockPartnerResponse.access_token}`
+            Authorization: `Bearer ${mockPartnerResponse.access_token}`,
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -141,6 +154,11 @@ describe('TeslaAPI', () => {
           client_secret: ENV.TESLA_CLIENT_SECRET,
           code: mockCode,
           redirect_uri: ENV.TESLA_REDIRECT_URI
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -190,7 +208,8 @@ describe('TeslaAPI', () => {
         'https://fleet-api.prd.na.vn.cloud.tesla.com/api/1/vehicles',
         {
           headers: {
-            Authorization: 'Bearer test_token'
+            Authorization: 'Bearer test_token',
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -232,6 +251,11 @@ describe('TeslaAPI', () => {
           client_id: ENV.TESLA_CLIENT_ID,
           client_secret: ENV.TESLA_CLIENT_SECRET,
           refresh_token: 'refresh_token'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
     });

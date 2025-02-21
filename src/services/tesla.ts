@@ -31,13 +31,20 @@ export class TeslaAPI {
     if (this.partnerToken) return this.partnerToken;
 
     try {
-      const response = await axios.post(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
+      const payload = {
         grant_type: 'client_credentials',
         client_id: ENV.TESLA_CLIENT_ID,
         client_secret: ENV.TESLA_CLIENT_SECRET,
         audience: TESLA_API_BASE,
         scope: 'openid user_data vehicle_device_data vehicle_cmds vehicle_charging_cmds'
+      };
+      console.log('Partner token request payload:', payload);
+      const response = await axios.post(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      console.log('Partner token response:', response.data);
 
       this.partnerToken = response.data.access_token;
       return this.partnerToken;
@@ -50,12 +57,15 @@ export class TeslaAPI {
   async registerPartnerAccount(): Promise<void> {
     try {
       const partnerToken = await this.getPartnerToken();
+      console.log('Registering partner account with token:', partnerToken);
       
-      await axios.post(`${TESLA_API_BASE}/api/1/partner_accounts`, {}, {
+      const response = await axios.post(`${TESLA_API_BASE}/api/1/partner_accounts`, {}, {
         headers: {
-          Authorization: `Bearer ${partnerToken}`
+          Authorization: `Bearer ${partnerToken}`,
+          'Content-Type': 'application/json'
         }
       });
+      console.log('Partner registration response:', response.data);
     } catch (error) {
       console.error('Failed to register partner account:', error);
       throw this.handleError(error as AxiosError);
@@ -64,13 +74,20 @@ export class TeslaAPI {
 
   async authenticate(code: string): Promise<TeslaAuthResponse> {
     try {
-      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
+      const payload = {
         grant_type: 'authorization_code',
         client_id: ENV.TESLA_CLIENT_ID,
         client_secret: ENV.TESLA_CLIENT_SECRET,
         code,
         redirect_uri: ENV.TESLA_REDIRECT_URI
+      };
+      console.log('Auth token request payload:', payload);
+      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      console.log('Auth token response:', response.data);
 
       this.accessToken = response.data.access_token;
       this.refreshToken = response.data.refresh_token;
@@ -89,12 +106,19 @@ export class TeslaAPI {
     }
 
     try {
-      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
+      const payload = {
         grant_type: 'refresh_token',
         client_id: ENV.TESLA_CLIENT_ID,
         client_secret: ENV.TESLA_CLIENT_SECRET,
         refresh_token: this.refreshToken
+      };
+      console.log('Refresh token request payload:', payload);
+      const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      console.log('Refresh token response:', response.data);
 
       this.accessToken = response.data.access_token;
       this.refreshToken = response.data.refresh_token;
@@ -121,9 +145,11 @@ export class TeslaAPI {
     try {
       const response = await axios.get(`${TESLA_API_BASE}/api/1/vehicles`, {
         headers: {
-          Authorization: `Bearer ${this.accessToken}`
+          Authorization: `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json'
         }
       });
+      console.log('Get vehicles response:', response.data);
 
       return response.data.response;
     } catch (error) {
