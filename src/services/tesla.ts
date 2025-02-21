@@ -41,8 +41,10 @@ export class TeslaAPI {
       console.log('Partner token request payload:', payload);
       const response = await axios.post(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        withCredentials: false
       });
       console.log('Partner token response:', response.data);
 
@@ -62,8 +64,10 @@ export class TeslaAPI {
       const response = await axios.post(`${TESLA_API_BASE}/api/1/partner_accounts`, {}, {
         headers: {
           Authorization: `Bearer ${partnerToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        withCredentials: false
       });
       console.log('Partner registration response:', response.data);
     } catch (error) {
@@ -84,8 +88,10 @@ export class TeslaAPI {
       console.log('Auth token request payload:', payload);
       const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        withCredentials: false
       });
       console.log('Auth token response:', response.data);
 
@@ -115,8 +121,10 @@ export class TeslaAPI {
       console.log('Refresh token request payload:', payload);
       const response = await axios.post<TeslaAuthResponse>(`${TESLA_AUTH_BASE}/oauth2/v3/token`, payload, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        withCredentials: false
       });
       console.log('Refresh token response:', response.data);
 
@@ -146,8 +154,10 @@ export class TeslaAPI {
       const response = await axios.get(`${TESLA_API_BASE}/api/1/vehicles`, {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        withCredentials: false
       });
       console.log('Get vehicles response:', response.data);
 

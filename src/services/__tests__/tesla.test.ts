@@ -49,8 +49,10 @@ describe('TeslaAPI', () => {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*'
+          },
+          withCredentials: false
         }
       );
 
@@ -106,8 +108,10 @@ describe('TeslaAPI', () => {
         {
           headers: {
             Authorization: `Bearer ${mockPartnerResponse.access_token}`,
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*'
+          },
+          withCredentials: false
         }
       );
     });
@@ -157,8 +161,10 @@ describe('TeslaAPI', () => {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*'
+          },
+          withCredentials: false
         }
       );
 
@@ -209,8 +215,10 @@ describe('TeslaAPI', () => {
         {
           headers: {
             Authorization: 'Bearer test_token',
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*'
+          },
+          withCredentials: false
         }
       );
 
@@ -254,8 +262,10 @@ describe('TeslaAPI', () => {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*'
+          },
+          withCredentials: false
         }
       );
     });
