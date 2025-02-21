@@ -23,15 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Environment files
 .env
 .env.*
+!.env.example
 
-# AWS
+# AWS credentials
 .aws
-infrastructure/cdk.out/
-infrastructure/node_modules/
-infrastructure/dist/
-infrastructure/new-credentials.txt
-infrastructure/brightcharge-credentials.txt
-infrastructure/awscliv2.zip
+aws-credentials.txt
+brightcharge-credentials.txt
+new-credentials.txt
+
+# Coverage directory
+coverage

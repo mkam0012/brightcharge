@@ -1,0 +1,365 @@
+{
+  "version": "36.0.0",
+  "artifacts": {
+    "BrightChargeDev.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "BrightChargeDev.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "BrightChargeDev": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://982534353189/us-east-1",
+      "properties": {
+        "templateFile": "BrightChargeDev.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-deploy-role-982534353189-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-cfn-exec-role-982534353189-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-982534353189-us-east-1/f6105cdfe135f0c360890e15ff95905fef483d31f4487bce80b2f774882492cb.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "BrightChargeDev.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-lookup-role-982534353189-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "BrightChargeDev.assets"
+      ],
+      "metadata": {
+        "/BrightChargeDev/Certificate/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Certificate4E7ABB08"
+          }
+        ],
+        "/BrightChargeDev/WebsiteBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucket75C24D94"
+          }
+        ],
+        "/BrightChargeDev/WebsiteBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucketPolicyE10E3262"
+          }
+        ],
+        "/BrightChargeDev/WebsiteBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucketAutoDeleteObjectsCustomResource8750E461"
+          }
+        ],
+        "/BrightChargeDev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/BrightChargeDev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/BrightChargeDev/OriginAccessIdentity/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OriginAccessIdentityDF1E3CAC"
+          }
+        ],
+        "/BrightChargeDev/CachePolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CachePolicy26D8A535"
+          }
+        ],
+        "/BrightChargeDev/RewriteFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RewriteFunctionE78585E2"
+          }
+        ],
+        "/BrightChargeDev/Distribution/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Distribution830FAC52"
+          }
+        ],
+        "/BrightChargeDev/SiteAliasRecord/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SiteAliasRecord3C0AF5BF"
+          }
+        ],
+        "/BrightChargeDev/AWSCloudFrontPartitionHostedZoneIdMap": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AWSCloudFrontPartitionHostedZoneIdMap"
+          }
+        ],
+        "/BrightChargeDev/DeployWebsite/AwsCliLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DeployWebsiteAwsCliLayer17DBC421"
+          }
+        ],
+        "/BrightChargeDev/DeployWebsite/CustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DeployWebsiteCustomResourceD116527B"
+          }
+        ],
+        "/BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+          }
+        ],
+        "/BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF"
+          }
+        ],
+        "/BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536"
+          }
+        ],
+        "/BrightChargeDev/CloudFrontDomain": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CloudFrontDomain"
+          }
+        ],
+        "/BrightChargeDev/BucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketName"
+          }
+        ],
+        "/BrightChargeDev/DistributionId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DistributionId"
+          }
+        ],
+        "/BrightChargeDev/DomainName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DomainName"
+          }
+        ],
+        "/BrightChargeDev/CertificateArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CertificateArn"
+          }
+        ],
+        "/BrightChargeDev/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/BrightChargeDev/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/BrightChargeDev/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "BrightChargeDev"
+    },
+    "BrightChargeProd.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "BrightChargeProd.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "BrightChargeProd": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://982534353189/us-east-1",
+      "properties": {
+        "templateFile": "BrightChargeProd.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-deploy-role-982534353189-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-cfn-exec-role-982534353189-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-982534353189-us-east-1/93a2bfea56e40b7cbe9aaaaab9ba5e4e5f55acda57d011eed3b1b940aca84ec0.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "BrightChargeProd.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::982534353189:role/cdk-hnb659fds-lookup-role-982534353189-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "BrightChargeProd.assets"
+      ],
+      "metadata": {
+        "/BrightChargeProd/Certificate/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Certificate4E7ABB08"
+          }
+        ],
+        "/BrightChargeProd/WebsiteBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucket75C24D94"
+          }
+        ],
+        "/BrightChargeProd/WebsiteBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucketPolicyE10E3262"
+          }
+        ],
+        "/BrightChargeProd/OriginAccessIdentity/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OriginAccessIdentityDF1E3CAC"
+          }
+        ],
+        "/BrightChargeProd/CachePolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CachePolicy26D8A535"
+          }
+        ],
+        "/BrightChargeProd/RewriteFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RewriteFunctionE78585E2"
+          }
+        ],
+        "/BrightChargeProd/Distribution/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Distribution830FAC52"
+          }
+        ],
+        "/BrightChargeProd/SiteAliasRecord/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SiteAliasRecord3C0AF5BF"
+          }
+        ],
+        "/BrightChargeProd/AWSCloudFrontPartitionHostedZoneIdMap": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AWSCloudFrontPartitionHostedZoneIdMap"
+          }
+        ],
+        "/BrightChargeProd/DeployWebsite/AwsCliLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DeployWebsiteAwsCliLayer17DBC421"
+          }
+        ],
+        "/BrightChargeProd/DeployWebsite/CustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DeployWebsiteCustomResourceD116527B"
+          }
+        ],
+        "/BrightChargeProd/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+          }
+        ],
+        "/BrightChargeProd/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF"
+          }
+        ],
+        "/BrightChargeProd/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536"
+          }
+        ],
+        "/BrightChargeProd/CloudFrontDomain": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CloudFrontDomain"
+          }
+        ],
+        "/BrightChargeProd/BucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketName"
+          }
+        ],
+        "/BrightChargeProd/DistributionId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DistributionId"
+          }
+        ],
+        "/BrightChargeProd/DomainName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DomainName"
+          }
+        ],
+        "/BrightChargeProd/CertificateArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CertificateArn"
+          }
+        ],
+        "/BrightChargeProd/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/BrightChargeProd/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/BrightChargeProd/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "BrightChargeProd"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

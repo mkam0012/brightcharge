@@ -1,0 +1,748 @@
+{
+ "Resources": {
+  "Certificate4E7ABB08": {
+   "Type": "AWS::CertificateManager::Certificate",
+   "Properties": {
+    "DomainName": "dev.brightcharge.net",
+    "DomainValidationOptions": [
+     {
+      "DomainName": "dev.brightcharge.net",
+      "HostedZoneId": "Z09070262NGMJBPNE82ZJ"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BrightChargeDev/Certificate"
+     }
+    ],
+    "ValidationMethod": "DNS"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Certificate/Resource"
+   }
+  },
+  "WebsiteBucket75C24D94": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     },
+     {
+      "Key": "aws-cdk:cr-owned:a5e99756",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/WebsiteBucket/Resource"
+   }
+  },
+  "WebsiteBucketPolicyE10E3262": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "WebsiteBucket75C24D94"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WebsiteBucket75C24D94",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "WebsiteBucket75C24D94",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WebsiteBucket75C24D94",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "WebsiteBucket75C24D94",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "s3:GetObject",
+       "Effect": "Allow",
+       "Principal": {
+        "CanonicalUser": {
+         "Fn::GetAtt": [
+          "OriginAccessIdentityDF1E3CAC",
+          "S3CanonicalUserId"
+         ]
+        }
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "WebsiteBucket75C24D94",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/WebsiteBucket/Policy/Resource"
+   }
+  },
+  "WebsiteBucketAutoDeleteObjectsCustomResource8750E461": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "WebsiteBucket75C24D94"
+    }
+   },
+   "DependsOn": [
+    "WebsiteBucketPolicyE10E3262"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/WebsiteBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-982534353189-us-east-1",
+     "S3Key": "6c1e9b465fa4b2d651dbc9ce3e732d8702a7b19137327684a71d89f1d355f1a2.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "WebsiteBucket75C24D94"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.6c1e9b465fa4b2d651dbc9ce3e732d8702a7b19137327684a71d89f1d355f1a2",
+    "aws:asset:property": "Code"
+   }
+  },
+  "OriginAccessIdentityDF1E3CAC": {
+   "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+   "Properties": {
+    "CloudFrontOriginAccessIdentityConfig": {
+     "Comment": "OAI for BrightChargeDev"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/OriginAccessIdentity/Resource"
+   }
+  },
+  "CachePolicy26D8A535": {
+   "Type": "AWS::CloudFront::CachePolicy",
+   "Properties": {
+    "CachePolicyConfig": {
+     "DefaultTTL": 86400,
+     "MaxTTL": 31536000,
+     "MinTTL": 60,
+     "Name": "BrightChargeDevCachePolicy3BDD868B-us-east-1",
+     "ParametersInCacheKeyAndForwardedToOrigin": {
+      "CookiesConfig": {
+       "CookieBehavior": "none"
+      },
+      "EnableAcceptEncodingBrotli": true,
+      "EnableAcceptEncodingGzip": true,
+      "HeadersConfig": {
+       "HeaderBehavior": "whitelist",
+       "Headers": [
+        "Authorization"
+       ]
+      },
+      "QueryStringsConfig": {
+       "QueryStringBehavior": "all"
+      }
+     }
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/CachePolicy/Resource"
+   }
+  },
+  "RewriteFunctionE78585E2": {
+   "Type": "AWS::CloudFront::Function",
+   "Properties": {
+    "AutoPublish": true,
+    "FunctionCode": "\n        function handler(event) {\n          var request = event.request;\n          var uri = request.uri;\n          \n          // Check whether the URI is missing a file extension\n          if (!uri.includes('.')) {\n            request.uri = '/index.html';\n          }\n          \n          return request;\n        }\n      ",
+    "FunctionConfig": {
+     "Comment": "us-east-1BrightChargeDevRewriteFunction9F3287A9",
+     "Runtime": "cloudfront-js-1.0"
+    },
+    "Name": "us-east-1BrightChargeDevRewriteFunction9F3287A9"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/RewriteFunction/Resource"
+   }
+  },
+  "Distribution830FAC52": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "Aliases": [
+      "dev.brightcharge.net"
+     ],
+     "Comment": "Distribution for BrightChargeDev",
+     "CustomErrorResponses": [
+      {
+       "ErrorCachingMinTTL": 300,
+       "ErrorCode": 403,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      },
+      {
+       "ErrorCachingMinTTL": 300,
+       "ErrorCode": 404,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      }
+     ],
+     "DefaultCacheBehavior": {
+      "AllowedMethods": [
+       "GET",
+       "HEAD",
+       "OPTIONS",
+       "PUT",
+       "PATCH",
+       "POST",
+       "DELETE"
+      ],
+      "CachePolicyId": {
+       "Ref": "CachePolicy26D8A535"
+      },
+      "CachedMethods": [
+       "GET",
+       "HEAD",
+       "OPTIONS"
+      ],
+      "Compress": true,
+      "FunctionAssociations": [
+       {
+        "EventType": "viewer-request",
+        "FunctionARN": {
+         "Fn::GetAtt": [
+          "RewriteFunctionE78585E2",
+          "FunctionARN"
+         ]
+        }
+       }
+      ],
+      "OriginRequestPolicyId": "b689b0a8-53d0-40ab-baf2-68738e2966ac",
+      "TargetOriginId": "BrightChargeDevDistributionOrigin1F39B623F",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "DomainName": {
+        "Fn::GetAtt": [
+         "WebsiteBucket75C24D94",
+         "RegionalDomainName"
+        ]
+       },
+       "Id": "BrightChargeDevDistributionOrigin1F39B623F",
+       "OriginPath": "",
+       "S3OriginConfig": {
+        "OriginAccessIdentity": {
+         "Fn::Join": [
+          "",
+          [
+           "origin-access-identity/cloudfront/",
+           {
+            "Ref": "OriginAccessIdentityDF1E3CAC"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "PriceClass": "PriceClass_100",
+     "ViewerCertificate": {
+      "AcmCertificateArn": {
+       "Ref": "Certificate4E7ABB08"
+      },
+      "MinimumProtocolVersion": "TLSv1.2_2021",
+      "SslSupportMethod": "sni-only"
+     }
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Distribution/Resource"
+   }
+  },
+  "SiteAliasRecord3C0AF5BF": {
+   "Type": "AWS::Route53::RecordSet",
+   "Properties": {
+    "AliasTarget": {
+     "DNSName": {
+      "Fn::GetAtt": [
+       "Distribution830FAC52",
+       "DomainName"
+      ]
+     },
+     "HostedZoneId": {
+      "Fn::FindInMap": [
+       "AWSCloudFrontPartitionHostedZoneIdMap",
+       {
+        "Ref": "AWS::Partition"
+       },
+       "zoneId"
+      ]
+     }
+    },
+    "HostedZoneId": "Z09070262NGMJBPNE82ZJ",
+    "Name": "dev.brightcharge.net.",
+    "Type": "A"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/SiteAliasRecord/Resource"
+   }
+  },
+  "DeployWebsiteAwsCliLayer17DBC421": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-982534353189-us-east-1",
+     "S3Key": "3ec63c94c6b53a6997f63c3f6e780c0c4da7e541c316938fc6681d96f76b30d6.zip"
+    },
+    "Description": "/opt/awscli/aws"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/DeployWebsite/AwsCliLayer/Resource",
+    "aws:asset:path": "asset.3ec63c94c6b53a6997f63c3f6e780c0c4da7e541c316938fc6681d96f76b30d6.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "DeployWebsiteCustomResourceD116527B": {
+   "Type": "Custom::CDKBucketDeployment",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+      "Arn"
+     ]
+    },
+    "SourceBucketNames": [
+     "cdk-hnb659fds-assets-982534353189-us-east-1"
+    ],
+    "SourceObjectKeys": [
+     "30a7323dda8a54ae3e5b9f711dfe84c358e9db2c48f63d479b0cab02f474c712.zip"
+    ],
+    "DestinationBucketName": {
+     "Ref": "WebsiteBucket75C24D94"
+    },
+    "Prune": true,
+    "SystemMetadata": {
+     "cache-control": "public, max-age=31536000, s-maxage=31536000"
+    },
+    "DistributionId": {
+     "Ref": "Distribution830FAC52"
+    },
+    "DistributionPaths": [
+     "/*"
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/DeployWebsite/CustomResource/Default"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:s3:::cdk-hnb659fds-assets-982534353189-us-east-1",
+        "arn:aws:s3:::cdk-hnb659fds-assets-982534353189-us-east-1/*"
+       ]
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WebsiteBucket75C24D94",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "WebsiteBucket75C24D94",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "cloudfront:CreateInvalidation",
+        "cloudfront:GetInvalidation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "Roles": [
+     {
+      "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-982534353189-us-east-1",
+     "S3Key": "2d56e153cac88d3e0c2f842e8e6f6783b8725bf91f95e0673b4725448a56e96d.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+     }
+    },
+    "Handler": "index.handler",
+    "Layers": [
+     {
+      "Ref": "DeployWebsiteAwsCliLayer17DBC421"
+     }
+    ],
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.9",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource",
+    "aws:asset:path": "asset.2d56e153cac88d3e0c2f842e8e6f6783b8725bf91f95e0673b4725448a56e96d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21S227CMAz9lr2HjIH4gFKENGkTqEh7rULiMkOaVIkDQlX/fUkLlEk8+fgmn2N7xj/mH3z6Ji5+ItVponHP2x0JeWIFeBucBBZzZSvBEVYoBUEtjDiA420+xlhemSe3Y37O22WQJ6CUuqHBbK1GeR3DN39wlsLHbqltUJWzhni7cXhAk0kJ3n8qMITUN+epZp1qXlcI+QvjqGd3HYwktCbFH3iFnhzuwz3x7HfM2UCwiJqyAqR1KlUMaAeU1Jatgkbbax3H80HK6hFgwnsgz7NkOqZFvVci7q8yX+IK7gecT1N3aA4ayI6kXjHtGIqat4XV/dZ7O+ocUNexPHiy9eOIPd87/pfaOntGBS5tnvUM4/3jPg+p51s0TYID5VInumV8CKmRZxefa+wVpNJNoCZEdcYq4Ef/fp5N+SK+1tEjTlyIV6mBF4P9A+eTGmh3AgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BrightChargeDev/CDKMetadata/Default"
+   }
+  }
+ },
+ "Mappings": {
+  "AWSCloudFrontPartitionHostedZoneIdMap": {
+   "aws": {
+    "zoneId": "Z2FDTNDATAQYW2"
+   },
+   "aws-cn": {
+    "zoneId": "Z3RFFRIM2A3IF5"
+   }
+  }
+ },
+ "Outputs": {
+  "CloudFrontDomain": {
+   "Description": "CloudFront Distribution Domain Name",
+   "Value": {
+    "Fn::GetAtt": [
+     "Distribution830FAC52",
+     "DomainName"
+    ]
+   },
+   "Export": {
+    "Name": "BrightChargeDev-CloudFrontDomain"
+   }
+  },
+  "BucketName": {
+   "Description": "Website Bucket Name",
+   "Value": {
+    "Ref": "WebsiteBucket75C24D94"
+   },
+   "Export": {
+    "Name": "BrightChargeDev-BucketName"
+   }
+  },
+  "DistributionId": {
+   "Description": "CloudFront Distribution ID",
+   "Value": {
+    "Ref": "Distribution830FAC52"
+   },
+   "Export": {
+    "Name": "BrightChargeDev-DistributionId"
+   }
+  },
+  "DomainName": {
+   "Description": "Domain Name",
+   "Value": "dev.brightcharge.net",
+   "Export": {
+    "Name": "BrightChargeDev-DomainName"
+   }
+  },
+  "CertificateArn": {
+   "Description": "Certificate ARN",
+   "Value": {
+    "Ref": "Certificate4E7ABB08"
+   },
+   "Export": {
+    "Name": "BrightChargeDev-CertificateArn"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
