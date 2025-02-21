@@ -1,0 +1,34 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudformation:*",
+          "s3:*",
+          "iam:*",
+          "cloudfront:*",
+          "sts:AssumeRole",
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath",
+          "ssm:PutParameter",
+          "kms:Decrypt",
+          "ecr:*",
+          "lambda:*",
+          "apigateway:*",
+          "logs:*",
+          "acm:*",
+          "cloudwatch:*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sts:GetCallerIdentity"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }

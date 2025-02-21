@@ -1,0 +1,57 @@
+name: Deploy BrightCharge
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd infrastructure && npm ci
+        
+      - name: Build
+        run: npm run build
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Required for ACM certificates with CloudFront
+          
+      - name: Deploy infrastructure
+        working-directory: infrastructure
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            npx cdk deploy BrightChargeProd --require-approval never
+          else
+            npx cdk deploy BrightChargeDev --require-approval never
+          fi
+          
+      - name: Check deployment status
+        working-directory: infrastructure
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            DIST_ID=$(aws cloudformation describe-stacks --stack-name BrightChargeProd --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' --output text)
+          else
+            DIST_ID=$(aws cloudformation describe-stacks --stack-name BrightChargeDev --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' --output text)
+          fi
+          npx ts-node check-status.ts $DIST_ID
