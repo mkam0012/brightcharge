@@ -14,6 +14,108 @@ describe('TeslaAPI', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     vi.clearAllMocks();
+    // Reset the singleton instance
+    (TeslaAPI as any).instance = undefined;
+  });
+
+  describe('getPartnerToken', () => {
+    const mockPartnerResponse = {
+      access_token: 'partner_token',
+      token_type: 'Bearer',
+      expires_in: 3600
+    };
+
+    it('should get partner token successfully', async () => {
+      mockedAxios.post.mockResolvedValueOnce({ data: mockPartnerResponse });
+
+      const api = TeslaAPI.getInstance();
+      const token = await api.getPartnerToken();
+
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token',
+        {
+          grant_type: 'client_credentials',
+          client_id: ENV.TESLA_CLIENT_ID,
+          client_secret: ENV.TESLA_CLIENT_SECRET,
+          audience: 'https://fleet-api.prd.na.vn.cloud.tesla.com',
+          scope: 'openid user_data vehicle_device_data vehicle_cmds vehicle_charging_cmds'
+        }
+      );
+
+      expect(token).toBe(mockPartnerResponse.access_token);
+    });
+
+    it('should reuse existing partner token if available', async () => {
+      mockedAxios.post.mockResolvedValueOnce({ data: mockPartnerResponse });
+
+      const api = TeslaAPI.getInstance();
+      const token1 = await api.getPartnerToken();
+      const token2 = await api.getPartnerToken();
+
+      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      expect(token1).toBe(token2);
+    });
+
+    it('should throw error on partner token failure', async () => {
+      const mockError = new AxiosError();
+      mockError.response = {
+        status: 400,
+        data: { error_description: 'Invalid client credentials' },
+        statusText: 'Bad Request',
+        headers: {},
+        config: {} as any
+      };
+      mockedAxios.post.mockRejectedValueOnce(mockError);
+
+      const api = TeslaAPI.getInstance();
+      await expect(api.getPartnerToken()).rejects.toThrow('Invalid client credentials');
+    });
+  });
+
+  describe('registerPartnerAccount', () => {
+    const mockPartnerResponse = {
+      access_token: 'partner_token',
+      token_type: 'Bearer',
+      expires_in: 3600
+    };
+
+    it('should register partner account successfully', async () => {
+      mockedAxios.post
+        .mockResolvedValueOnce({ data: mockPartnerResponse }) // For getPartnerToken
+        .mockResolvedValueOnce({}); // For registerPartnerAccount
+
+      const api = TeslaAPI.getInstance();
+      await api.registerPartnerAccount();
+
+      expect(mockedAxios.post).toHaveBeenCalledTimes(2);
+      expect(mockedAxios.post).toHaveBeenLastCalledWith(
+        'https://fleet-api.prd.na.vn.cloud.tesla.com/api/1/partner_accounts',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${mockPartnerResponse.access_token}`
+          }
+        }
+      );
+    });
+
+    it('should throw error on registration failure', async () => {
+      const mockError = new AxiosError();
+      mockError.response = {
+        status: 400,
+        data: { error_description: 'Registration failed' },
+        statusText: 'Bad Request',
+        headers: {},
+        config: {} as any
+      };
+      
+      mockedAxios.post
+        .mockResolvedValueOnce({ data: mockPartnerResponse }) // For getPartnerToken
+        .mockRejectedValueOnce(mockError);
+
+      const api = TeslaAPI.getInstance();
+      await expect(api.registerPartnerAccount()).rejects.toThrow('Registration failed');
+    });
   });
 
   describe('authenticate', () => {
@@ -46,11 +148,18 @@ describe('TeslaAPI', () => {
     });
 
     it('should throw error on authentication failure', async () => {
-      const mockError = new AxiosError('Invalid authorization code');
+      const mockError = new AxiosError();
+      mockError.response = {
+        status: 400,
+        data: { error_description: 'Invalid authorization code' },
+        statusText: 'Bad Request',
+        headers: {},
+        config: {} as any
+      };
       mockedAxios.post.mockRejectedValueOnce(mockError);
 
       const api = TeslaAPI.getInstance();
-      await expect(api.authenticate(mockCode)).rejects.toThrow();
+      await expect(api.authenticate(mockCode)).rejects.toThrow('Invalid authorization code');
     });
   });
 
@@ -128,16 +237,14 @@ describe('TeslaAPI', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const mockError = new AxiosError(
-        'API request failed',
-        'ERROR',
-        undefined,
-        undefined,
-        {
-          status: 400,
-          data: { error_description: 'Invalid request' }
-        } as any
-      );
+      const mockError = new AxiosError();
+      mockError.response = {
+        status: 400,
+        data: { error_description: 'Invalid request' },
+        statusText: 'Bad Request',
+        headers: {},
+        config: {} as any
+      };
       mockedAxios.get.mockRejectedValueOnce(mockError);
 
       const api = TeslaAPI.getInstance();

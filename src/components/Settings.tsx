@@ -16,6 +16,7 @@ export function Settings() {
   const [testSuccess, setTestSuccess] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [lastTestedUrl, setLastTestedUrl] = useState('');
+  const [teslaError, setTeslaError] = useState<string | null>(null);
 
   // Check initial connection status
   useEffect(() => {
@@ -107,14 +108,26 @@ export function Settings() {
     return Array.from(array, dec => dec.toString(16)).join('');
   };
 
-  const handleTeslaConnect = () => {
-    const teslaAuthUrl = `https://auth.tesla.com/oauth2/v3/authorize?client_id=${
-      import.meta.env.VITE_TESLA_CLIENT_ID
-    }&redirect_uri=${encodeURIComponent(
-      import.meta.env.VITE_TESLA_REDIRECT_URI
-    )}&response_type=code&scope=openid%20offline_access%20vehicle_device_data%20vehicle_cmds%20vehicle_charging_cmds&state=${generateRandomState()}`;
-    
-    window.location.href = teslaAuthUrl;
+  const handleTeslaConnect = async () => {
+    setTeslaError(null);
+    try {
+      // First get partner token and register
+      const teslaApi = TeslaAPI.getInstance();
+      await teslaApi.getPartnerToken();
+      await teslaApi.registerPartnerAccount();
+
+      // Then proceed with OAuth flow
+      const teslaAuthUrl = `https://auth.tesla.com/oauth2/v3/authorize?client_id=${
+        import.meta.env.VITE_TESLA_CLIENT_ID
+      }&redirect_uri=${encodeURIComponent(
+        import.meta.env.VITE_TESLA_REDIRECT_URI
+      )}&response_type=code&scope=openid%20offline_access%20vehicle_device_data%20vehicle_cmds%20vehicle_charging_cmds&state=${generateRandomState()}`;
+      
+      window.location.href = teslaAuthUrl;
+    } catch (error) {
+      console.error('Failed to initialize Tesla connection:', error);
+      setTeslaError(error instanceof Error ? error.message : 'Failed to initialize Tesla connection');
+    }
   };
 
   return (
@@ -251,7 +264,20 @@ export function Settings() {
             <p className="mt-2 text-sm text-gray-500">
               Connect your Tesla account to enable smart charging features
             </p>
-            <div className="mt-4">
+            <div className="mt-4 space-y-4">
+              {teslaError && (
+                <div className="rounded-md bg-red-50 p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <X className="h-5 w-5 text-red-400" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">Connection Error</h3>
+                      <p className="text-sm text-red-700 mt-1">{teslaError}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <button
                 onClick={handleTeslaConnect}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

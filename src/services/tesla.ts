@@ -133,17 +133,25 @@ export class TeslaAPI {
   }
 
   private handleError(error: AxiosError): Error {
-    if (error.response) {
+    if (error.response?.data) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       const data = error.response.data as any;
-      return new Error(data.error_description || data.message || 'API request failed');
+      if (typeof data === 'string') {
+        return new Error(data);
+      }
+      // Handle both error_description and message fields, with proper type checking
+      if (typeof data === 'object') {
+        const errorMessage = data.error_description || data.message || JSON.stringify(data);
+        return new Error(errorMessage);
+      }
+      return new Error('API request failed with unknown error format');
     } else if (error.request) {
       // The request was made but no response was received
       return new Error('No response from Tesla API');
     } else {
       // Something happened in setting up the request that triggered an Error
-      return error;
+      return new Error(error.message || 'Unknown error occurred');
     }
   }
 }
