@@ -19,9 +19,8 @@ function App() {
               <div className="flex justify-between h-16">
                 <div className="flex items-center">
                   <Link to="/" className="flex items-center">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-orange-400 rounded-full"></div>
-                      <Sun className="h-8 w-8 text-orange-500 relative" />
+                    <div className="relative w-8 h-8">
+                      <Sun className="absolute inset-0 text-orange-400" strokeWidth={1.5} fill="orange" />
                     </div>
                     <span className="ml-2 text-xl font-bold text-green-700">BrightCharge</span>
                   </Link>
