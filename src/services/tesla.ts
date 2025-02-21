@@ -3,12 +3,14 @@ import { ENV } from '../config/environment';
 import type { TeslaAuthResponse, TeslaVehicle } from '../types/tesla';
 
 const TESLA_API_BASE = 'https://fleet-api.prd.na.vn.cloud.tesla.com';
+const TESLA_AUTH_BASE = 'https://fleet-auth.prd.vn.cloud.tesla.com';
 
 export class TeslaAPI {
   private static instance: TeslaAPI;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private tokenExpiry: number | null = null;
+  private partnerToken: string = '';
 
   private constructor() {}
 
@@ -23,6 +25,41 @@ export class TeslaAPI {
     if (!this.tokenExpiry) return true;
     // Consider token expired 5 minutes before actual expiry
     return Date.now() >= (this.tokenExpiry - 5 * 60 * 1000);
+  }
+
+  async getPartnerToken(): Promise<string> {
+    if (this.partnerToken) return this.partnerToken;
+
+    try {
+      const response = await axios.post(`${TESLA_AUTH_BASE}/oauth2/v3/token`, {
+        grant_type: 'client_credentials',
+        client_id: ENV.TESLA_CLIENT_ID,
+        client_secret: ENV.TESLA_CLIENT_SECRET,
+        audience: TESLA_API_BASE,
+        scope: 'openid user_data vehicle_device_data vehicle_cmds vehicle_charging_cmds'
+      });
+
+      this.partnerToken = response.data.access_token;
+      return this.partnerToken;
+    } catch (error) {
+      console.error('Failed to get partner token:', error);
+      throw this.handleError(error as AxiosError);
+    }
+  }
+
+  async registerPartnerAccount(): Promise<void> {
+    try {
+      const partnerToken = await this.getPartnerToken();
+      
+      await axios.post(`${TESLA_API_BASE}/api/1/partner_accounts`, {}, {
+        headers: {
+          Authorization: `Bearer ${partnerToken}`
+        }
+      });
+    } catch (error) {
+      console.error('Failed to register partner account:', error);
+      throw this.handleError(error as AxiosError);
+    }
   }
 
   async authenticate(code: string): Promise<TeslaAuthResponse> {
