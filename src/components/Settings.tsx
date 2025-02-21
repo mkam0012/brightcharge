@@ -101,12 +101,18 @@ export function Settings() {
     setTestError(null);
   };
 
+  const generateRandomState = () => {
+    const array = new Uint32Array(2);
+    crypto.getRandomValues(array);
+    return Array.from(array, dec => dec.toString(16)).join('');
+  };
+
   const handleTeslaConnect = () => {
     const teslaAuthUrl = `https://auth.tesla.com/oauth2/v3/authorize?client_id=${
       import.meta.env.VITE_TESLA_CLIENT_ID
     }&redirect_uri=${encodeURIComponent(
       import.meta.env.VITE_TESLA_REDIRECT_URI
-    )}&response_type=code&scope=openid offline_access vehicle_device_data vehicle_cmds vehicle_charging_cmds`;
+    )}&response_type=code&scope=openid%20offline_access%20vehicle_device_data%20vehicle_cmds%20vehicle_charging_cmds&state=${generateRandomState()}`;
     
     window.location.href = teslaAuthUrl;
   };
