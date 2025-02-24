@@ -49,11 +49,15 @@ export class TeslaApiService {
 
   // Generate OAuth authorization URL
   public getAuthUrl(): string {
+    const state = crypto.randomUUID();
+    const scope = 'openid vehicle_device_data vehicle_cmds vehicle_charging_commands';
+    
     const params = new URLSearchParams({
       client_id: ENV.TESLA_CLIENT_ID,
       redirect_uri: ENV.TESLA_REDIRECT_URI,
       response_type: 'code',
-      scope: 'openid vehicle_device_data vehicle_cmds vehicle_charging_commands',
+      scope,
+      state,
       audience: TeslaApiService.DEFAULT_AUDIENCE,
     });
 
