@@ -1,14 +1,16 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TeslaAPI } from '../services/tesla';
+import { useTeslaApi } from '../hooks/useTeslaApi';
 import { Battery, AlertCircle, Car, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function VehicleStats() {
+  const { teslaApi, isAuthenticated } = useTeslaApi();
   const { data: vehicles, isLoading, error, isError } = useQuery({
     queryKey: ['vehicles'],
-    queryFn: () => TeslaAPI.getInstance().getVehicles(),
+    queryFn: () => teslaApi.getVehicles(),
     retry: 1,
+    enabled: isAuthenticated,
   });
 
   if (isLoading) {
@@ -68,9 +70,9 @@ export function VehicleStats() {
     );
   }
 
-  const vehicle = vehicles[0]; // Show first vehicle for now
-  const batteryPercentage = vehicle.battery_level;
-  const isCharging = vehicle.charging_state === 'Charging';
+  const vehicle = vehicles?.[0]; // Show first vehicle for now
+  const batteryPercentage = vehicle?.charge_state?.battery_level;
+  const isCharging = vehicle?.charge_state?.charging_state === 'Charging';
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
@@ -79,7 +81,7 @@ export function VehicleStats() {
           <p className="text-sm font-medium text-gray-600">Vehicle Status</p>
           <div className="flex items-center">
             <p className="text-2xl font-bold text-blue-600">
-              {vehicle.display_name}
+              {vehicle.id} {/* TODO: Add display name to vehicle data */}
             </p>
           </div>
         </div>

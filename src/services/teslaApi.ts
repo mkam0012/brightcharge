@@ -53,7 +53,7 @@ export class TeslaApiService {
       client_id: ENV.TESLA_CLIENT_ID,
       redirect_uri: ENV.TESLA_REDIRECT_URI,
       response_type: 'code',
-      scope: 'openid vehicle_device_data vehicle_cmds',
+      scope: 'openid vehicle_device_data vehicle_cmds vehicle_charging_commands',
       audience: TeslaApiService.DEFAULT_AUDIENCE,
     });
 
