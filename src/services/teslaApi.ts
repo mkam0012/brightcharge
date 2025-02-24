@@ -52,6 +52,9 @@ export class TeslaApiService {
     const state = crypto.randomUUID();
     const scope = 'openid vehicle_device_data vehicle_cmds vehicle_charging_commands';
     
+    console.log('Tesla Client ID:', ENV.TESLA_CLIENT_ID);
+    console.log('Tesla Redirect URI:', ENV.TESLA_REDIRECT_URI);
+    
     const params = new URLSearchParams({
       client_id: ENV.TESLA_CLIENT_ID,
       redirect_uri: ENV.TESLA_REDIRECT_URI,
