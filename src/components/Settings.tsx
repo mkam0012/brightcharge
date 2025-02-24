@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, ExternalLink, Settings as SettingsIcon, X, CheckCircle, Pencil, Car } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HomeAssistantAPI } from '../services/homeAssistant';
-import { TeslaAPI, TESLA_AUTH_BASE } from '../services/tesla';
+import { useTeslaApi } from '../hooks/useTeslaApi';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 import { ENV } from '../config/environment';
@@ -109,22 +109,13 @@ export function Settings() {
     return Array.from(array, dec => dec.toString(16)).join('');
   };
 
-  const handleTeslaConnect = async () => {
+  const { teslaApi, isAuthenticated, vehicles, error: teslaApiError } = useTeslaApi();
+
+  const handleTeslaConnect = () => {
     setTeslaError(null);
     try {
-      // First get partner token and register
-      const teslaApi = TeslaAPI.getInstance();
-      await teslaApi.getPartnerToken();
-      await teslaApi.registerPartnerAccount();
-
-      // Then proceed with OAuth flow
-      const teslaAuthUrl = `${TESLA_AUTH_BASE}/oauth2/v3/authorize?client_id=${
-        ENV.TESLA_CLIENT_ID
-      }&redirect_uri=${encodeURIComponent(
-        ENV.TESLA_REDIRECT_URI
-      )}&response_type=code&scope=openid%20offline_access%20vehicle_device_data%20vehicle_cmds%20vehicle_charging_cmds&state=${generateRandomState()}`;
-      
-      window.location.href = teslaAuthUrl;
+      const authUrl = teslaApi.getAuthUrl();
+      window.location.href = authUrl;
     } catch (error) {
       console.error('Failed to initialize Tesla connection:', error);
       setTeslaError(error instanceof Error ? error.message : 'Failed to initialize Tesla connection');
@@ -279,13 +270,35 @@ export function Settings() {
                   </div>
                 </div>
               )}
-              <button
-                onClick={handleTeslaConnect}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <Car className="h-4 w-4 mr-2" />
-                Connect Tesla Account
-              </button>
+              {isAuthenticated ? (
+                <div>
+                  <div className="flex items-center space-x-2 text-green-600 mb-4">
+                    <CheckCircle className="h-5 w-5" />
+                    <span>Connected to Tesla Account</span>
+                  </div>
+                  {vehicles.length > 0 && (
+                    <div className="mt-2">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Connected Vehicles:</h3>
+                      <ul className="space-y-2">
+                        {vehicles.map((vehicle) => (
+                          <li key={vehicle.id} className="flex items-center space-x-2 text-gray-600">
+                            <Car className="h-4 w-4" />
+                            <span>{vehicle.id}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={handleTeslaConnect}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Car className="h-4 w-4 mr-2" />
+                  Connect Tesla Account
+                </button>
+              )}
             </div>
           </div>
         </div>

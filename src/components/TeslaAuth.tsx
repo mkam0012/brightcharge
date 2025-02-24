@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TeslaAPI } from '../services/tesla';
+import { useTeslaApi } from '../hooks/useTeslaApi';
 import { Car, AlertCircle, Loader } from 'lucide-react';
 
 export function TeslaAuth() {
@@ -10,12 +10,14 @@ export function TeslaAuth() {
   const code = searchParams.get('code');
   const stateParam = searchParams.get('state');
 
+  const { handleAuthCallback } = useTeslaApi();
+
   useEffect(() => {
     async function handleTeslaAuth() {
       if (!code) return;
 
       try {
-        await TeslaAPI.getInstance().authenticate(code);
+        await handleAuthCallback(code);
         navigate('/', { replace: true });
       } catch (err) {
         console.error('Tesla authentication failed:', err);
@@ -24,7 +26,7 @@ export function TeslaAuth() {
     }
 
     handleTeslaAuth();
-  }, [code, navigate]);
+  }, [code, navigate, handleAuthCallback]);
 
   if (error) {
     return (
